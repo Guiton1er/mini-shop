@@ -76,7 +76,7 @@ productsRouter.get('/products', (req, res) => {
       <body>
         <header><a href="/">🛍️ MiniShop</a></header>
         <main>
-          <h1>Résultats pour : ${q}</h1>
+          <h1>Résultats pour : ${_.escape(q)}</h1>
           <div class="results-grid">${items || '<p class="empty">Aucun résultat.</p>'}</div>
           <a class="back-link" href="/">&larr; Retour à la boutique</a>
         </main>
