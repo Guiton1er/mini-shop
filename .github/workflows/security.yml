@@ -23,7 +23,16 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_ARGS: "--no-git --verbose"
+      # - uses: gitleaks/gitleaks-action@v3
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     GITLEAKS_ARGS: "--no-git --verbose"
+
+      # Installe proprement la CLI officielle de Gitleaks (ici version 8.19.0)
+      - name: Install Gitleaks CLI
+        run: |
+          curl -sSL https://github.com | tar -xz
+
+      # Force le scan historique et complet du dossier courant
+      - name: Run Full Security Scan
+        run: ./gitleaks detect --source . --verbose
