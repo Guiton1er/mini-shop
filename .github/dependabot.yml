@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # Configuration pour l'écosystème Node.js (npm)
+  - package-ecosystem: "npm"
+    directory: "/" # Emplacement du package.json (racine du projet)
+    schedule:
+      interval: "weekly" # Fréquence de vérification (daily, weekly, monthly)
+      day: "monday"      # Jour de la vérification si hebdomadaire
+      time: "09:00"      # Heure de la vérification (UTC)
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 5 # Nombre maximum de PR ouvertes en même temps
+    
+    # Assigne les Pull Requests automatiquement à un développeur
+    assignees:
+      - "Guiton1er"
+
+  # Configuration pour vos workflows GitHub Actions (Recommandé)
+  # - package-ecosystem: "github-actions"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
