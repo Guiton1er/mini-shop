@@ -1,0 +1,7 @@
+node_modules/
+dist/
+data/*.sqlite*
+data/secret-interne.txt
+files/*.pdf
+files/*.txt
+*.log

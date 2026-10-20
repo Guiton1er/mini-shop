@@ -1,0 +1,33 @@
+{
+  "name": "minishop-vulnerable",
+  "version": "1.0.0",
+  "description": "MiniShop - application fil rouge (version VULNÉRABLE) pour le module Développement de composants logiciels sécurisés",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "seed": "node dist/seed.js",
+    "start": "node dist/index.js",
+    "dev": "npm run build && npm run seed && npm start",
+    "pretest": "npm run build",
+    "test": "node --test dist/__tests__/*.test.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "cookie-parser": "^1.4.6",
+    "lodash": "4.17.15"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.5.0",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0",
+    "typescript": "^5.5.4",
+    "@types/lodash": "^4.17.7"
+  }
+}

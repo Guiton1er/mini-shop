@@ -1,0 +1,17 @@
+# Configuration gitleaks pour MiniShop.
+# On part du jeu de règles par défaut de gitleaks (détection de clés d'API
+# connues, tokens, secrets à haute entropie) et on ajoute une règle maison :
+# les règles par défaut ne détectent pas un secret "faible" comme
+# JWT_SECRET = 'secret123', car elles ciblent des formats de clés réels
+# (AWS, Stripe, GitHub...) ou des chaînes à haute entropie. En pratique,
+# une équipe ajoute souvent ce genre de règle pour ses propres
+# conventions de nommage (SECRET, API_KEY, PRIVATE_KEY...).
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "minishop-secret-assignment"
+description = "Secret ou clé assigné en dur dans le code (variable contenant SECRET ou KEY)"
+regex = '''(?i)[a-z_]*(secret|api_key|private_key)[a-z_]*\s*[:=]\s*['"][^'"\s]{6,}['"]'''
+tags = ["secret", "minishop"]

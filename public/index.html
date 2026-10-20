@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MiniShop</title>
+<style>
+  :root {
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --teal: #0e7490;
+    --teal-dark: #0c5c73;
+    --amber: #b45309;
+    --danger: #b91c1c;
+    --ok: #15803d;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', Inter, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--ink); }
+  a { color: inherit; }
+
+  header.site {
+    background: var(--ink); color: #fff; padding: 0 1.5rem;
+    display: flex; align-items: center; gap: 1.5rem; height: 64px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .brand { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; cursor: pointer; display: flex; align-items: center; gap: .4rem; white-space: nowrap; }
+  .site-search { flex: 1; max-width: 480px; display: flex; }
+  .site-search input { flex: 1; border: none; border-radius: 6px 0 0 6px; padding: .5rem .8rem; font-size: .95rem; }
+  .site-search button { border: none; background: var(--teal); color: #fff; padding: .5rem .9rem; border-radius: 0 6px 6px 0; cursor: pointer; }
+  .site-nav { display: flex; align-items: center; gap: 1.2rem; margin-left: auto; font-size: .92rem; }
+  .site-nav a { cursor: pointer; opacity: .9; text-decoration: none; }
+  .site-nav a:hover { opacity: 1; text-decoration: underline; }
+  .cart-link { position: relative; cursor: pointer; font-size: 1.3rem; }
+  .cart-badge {
+    position: absolute; top: -8px; right: -10px; background: var(--amber); color: #fff;
+    font-size: .68rem; font-weight: 700; border-radius: 999px; min-width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center; padding: 0 4px;
+  }
+  .hidden { display: none !important; }
+
+  main { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .view { display: none; }
+  .view.active { display: block; }
+  h1.page-title { font-size: 1.6rem; margin: 0 0 1.4rem; }
+  .muted { color: var(--muted); font-size: .88rem; }
+  .crumbs { font-size: .85rem; color: var(--muted); margin-bottom: 1rem; }
+  .crumbs a { cursor: pointer; color: var(--teal); text-decoration: none; }
+
+  button, .btn { border: none; border-radius: 7px; padding: .55rem 1.1rem; font-size: .92rem; font-weight: 600; cursor: pointer; }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-ghost { background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
+  .btn-danger { background: transparent; color: var(--danger); text-decoration: underline; padding: 0; font-weight: 500; }
+  .btn-block { width: 100%; }
+  label { display: block; font-size: .85rem; font-weight: 600; margin-top: .9rem; margin-bottom: .25rem; }
+  input[type=text], input[type=email], input[type=password], input[type=number] {
+    width: 100%; padding: .55rem .7rem; border: 1.5px solid var(--line); border-radius: 7px; font-size: .95rem;
+  }
+  input:focus { outline: none; border-color: var(--teal); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 1.4rem; }
+  .auth-card { max-width: 380px; margin: 1.5rem auto 0; }
+  .hint-box { background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: .7rem .9rem; font-size: .8rem; color: #0f766e; margin-top: 1rem; }
+
+  .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1.1rem; }
+  .product-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+  .product-thumb {
+    height: 110px; display: flex; align-items: center; justify-content: center;
+    color: #fff; cursor: pointer;
+  }
+  .product-thumb svg { width: 46px; height: 46px; }
+  .thumb-mini svg { width: 24px; height: 24px; }
+  .product-detail { display: flex; gap: 2rem; align-items: flex-start; }
+  .product-detail-thumb {
+    width: 220px; height: 220px; border-radius: 16px; display: flex; align-items: center;
+    justify-content: center; color: #fff; flex-shrink: 0;
+  }
+  .product-detail-thumb svg { width: 96px; height: 96px; }
+  .product-detail-body { flex: 1; }
+  @media (max-width: 600px) {
+    .product-detail { flex-direction: column; }
+    .product-detail-thumb { width: 100%; height: 180px; }
+  }
+  .product-body { padding: .9rem 1rem 1.1rem; display: flex; flex-direction: column; gap: .3rem; flex: 1; }
+  .product-name { font-weight: 700; font-size: .95rem; }
+  .product-price { color: var(--teal-dark); font-weight: 700; }
+  .product-stock { font-size: .78rem; color: var(--muted); }
+  .product-body button { margin-top: auto; }
+
+  .cart-line { display: flex; align-items: center; gap: 1rem; padding: .8rem 0; border-bottom: 1px solid var(--line); }
+  .cart-line .thumb-mini { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; flex-shrink: 0; }
+  .cart-line .name { flex: 1; font-weight: 600; font-size: .92rem; }
+  .qty-control { display: flex; align-items: center; gap: .4rem; }
+  .qty-control button { padding: .15rem .5rem; background: var(--line); color: var(--ink); }
+  .cart-line .line-total { width: 80px; text-align: right; font-weight: 700; }
+  .cart-summary { display: flex; justify-content: space-between; padding-top: 1rem; font-size: 1.1rem; font-weight: 800; }
+
+  .order-row { display: flex; align-items: center; gap: 1rem; padding: .9rem 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+  .order-row .meta { flex: 1; }
+  .order-status { font-size: .74rem; font-weight: 700; padding: .15rem .5rem; border-radius: 999px; background: #dcfce7; color: var(--ok); text-transform: uppercase; }
+  .order-row .actions { display: flex; gap: .8rem; font-size: .85rem; }
+  .order-row .actions a { cursor: pointer; color: var(--teal); text-decoration: none; }
+  .order-row .actions a:hover { text-decoration: underline; }
+
+  .alert { padding: .7rem 1rem; border-radius: 8px; font-size: .88rem; margin-bottom: 1rem; }
+  .alert-error { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+  .alert-success { background: #f0fdf4; color: var(--ok); border: 1px solid #bbf7d0; }
+  .confirm-box { text-align: center; padding: 3rem 1rem; }
+  .confirm-box .big-check { font-size: 3rem; }
+  details.raw { margin-top: .8rem; }
+  details.raw summary { cursor: pointer; font-size: .78rem; color: var(--muted); }
+  details.raw pre { background: var(--ink); color: #e2e8f0; padding: .8rem; border-radius: 8px; font-size: .78rem; overflow-x: auto; white-space: pre-wrap; margin-top: .4rem; }
+  .account-menu { position: relative; }
+  .account-dropdown {
+    position: absolute; right: 0; top: 36px; background: #fff; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    min-width: 170px; padding: .4rem; display: none; flex-direction: column;
+  }
+  .account-dropdown.open { display: flex; }
+  .account-dropdown a { padding: .5rem .6rem; border-radius: 6px; font-size: .88rem; text-decoration: none; }
+  .account-dropdown a:hover { background: var(--bg); }
+</style>
+</head>
+<body>
+
+  <header class="site">
+    <div class="brand" data-nav="catalogue">🛍️ MiniShop</div>
+    <form class="site-search" id="searchForm">
+      <input type="text" id="searchQ" placeholder="Rechercher un produit…" />
+      <button type="submit">Rechercher</button>
+    </form>
+    <nav class="site-nav">
+      <span class="cart-link" data-nav="cart">🛒<span class="cart-badge hidden" id="cartBadge">0</span></span>
+      <a id="navLoginLink" data-nav="login">Connexion</a>
+      <div class="account-menu hidden" id="accountMenu">
+        <a id="accountMenuToggle">👤 <span id="accountMenuName"></span> ▾</a>
+        <div class="account-dropdown" id="accountDropdown">
+          <a data-nav="account">Mon compte</a>
+          <a data-nav="orders">Mes commandes</a>
+          <a data-nav="admin" id="adminMenuLink" class="hidden">Administration</a>
+          <a id="btnLogout">Se déconnecter</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="view active" id="view-catalogue">
+      <h1 class="page-title">Notre catalogue</h1>
+      <div class="product-grid" id="productGrid"></div>
+    </section>
+
+    <section class="view" id="view-product">
+      <div id="productDetail"></div>
+    </section>
+
+    <section class="view" id="view-login">
+      <div class="crumbs"><a data-nav="catalogue">← Retour à la boutique</a></div>
+      <div class="card auth-card">
+        <h1 class="page-title" style="font-size:1.3rem">Se connecter</h1>
+        <div id="loginAlert"></div>
+        <label>E-mail</label><input type="text" id="loginEmail" placeholder="vous@exemple.com" />
+        <label>Mot de passe</label><input type="password" id="loginPassword" />
+        <button class="btn-primary btn-block" style="margin-top:1.2rem" id="btnLogin">Se connecter</button>
+        <p class="muted" style="margin-top:1rem">Pas encore de compte ? <a data-nav="register" style="color:var(--teal);cursor:pointer">S'inscrire</a></p>
+        <div class="hint-box">
+          Comptes de démonstration : <code>alice@minishop.test</code> / <code>Password123</code>,
+          <code>bob@minishop.test</code> / <code>Soleil2024</code>,
+          <code>admin@minishop.test</code> / <code>AdminAdmin1</code>.
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-register">
+      <div class="crumbs"><a data-nav="catalogue">← Retour à la boutique</a></div>
+      <div class="card auth-card">
+        <h1 class="page-title" style="font-size:1.3rem">Créer un compte</h1>
+        <div id="registerAlert"></div>
+        <label>E-mail</label><input type="email" id="regEmail" />
+        <label>Nom</label><input type="text" id="regName" />
+        <label>Téléphone</label><input type="text" id="regPhone" />
+        <label>Mot de passe</label><input type="password" id="regPassword" />
+        <button class="btn-primary btn-block" style="margin-top:1.2rem" id="btnRegister">Créer mon compte</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-cart">
+      <h1 class="page-title">Mon panier</h1>
+      <div class="card" id="cartCard">
+        <div id="cartLines"></div>
+        <div class="cart-summary"><span>Total</span><span id="cartTotal">0,00 €</span></div>
+        <button class="btn-primary btn-block" style="margin-top:1.2rem" id="btnCheckout">Passer la commande</button>
+        <div id="checkoutAlert"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-confirm">
+      <div class="card confirm-box">
+        <div class="big-check">✅</div>
+        <h1 class="page-title">Merci pour votre commande !</h1>
+        <p id="confirmDetails" class="muted"></p>
+        <button class="btn-ghost" data-nav="catalogue" style="margin-top:1rem">Retour au catalogue</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-account">
+      <h1 class="page-title">Mon compte</h1>
+      <div class="card" style="max-width:420px">
+        <label>E-mail</label><input type="text" id="profEmail" disabled />
+        <label>Nom</label><input type="text" id="profName" />
+        <label>Téléphone</label><input type="text" id="profPhone" />
+        <button class="btn-primary" style="margin-top:1.2rem" id="btnSaveProfile">Enregistrer</button>
+        <div id="profileAlert"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-orders">
+      <h1 class="page-title">Mes commandes</h1>
+      <div class="card" id="ordersCard">
+        <div id="ordersList"></div>
+      </div>
+      <div class="card" id="invoiceDetailCard" style="margin-top:1rem;display:none">
+        <h3 style="margin-top:0">Détail de la facture</h3>
+        <div id="invoiceDetail"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-admin">
+      <h1 class="page-title">Administration · Commandes</h1>
+      <div class="card">
+        <div id="adminOrdersList"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
