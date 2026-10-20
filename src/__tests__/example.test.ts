@@ -37,6 +37,21 @@ test('GET /api/products renvoie la liste des produits', async () => {
   assert.ok(res.body.length > 0, 'le tableau ne doit pas être vide');
 });
 
+test('GET /products affiche la recherche sans interpréter le HTML fourni', async () => {
+  const payload = '<h1>TEST</h1>';
+  const res = await request(app).get('/products').query({ q: payload });
+
+  assert.equal(res.status, 200);
+  assert.ok(
+    res.text.includes('&lt;h1&gt;TEST&lt;/h1&gt;'),
+    'le HTML fourni dans la recherche doit être échappé'
+  );
+  assert.ok(
+    !res.text.includes(payload),
+    'le HTML fourni dans la recherche ne doit pas être présent tel quel'
+  );
+});
+
 // --- À vous ---
 // Inspirez-vous de ce test pour écrire les vôtres : vous aurez besoin de
 // vous connecter d'abord dans la plupart des cas, par exemple :
