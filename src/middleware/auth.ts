@@ -4,7 +4,6 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 export const JWT_SECRET = 'secret123';
-
 export const PAYMENT_PROVIDER_SECRET_KEY = 'sk_live_EXEMPLE_NE_PAS_UTILISER';
 
 export interface AuthedRequest extends Request {
