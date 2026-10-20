@@ -14,13 +14,13 @@
   },
   "dependencies": {
     "better-sqlite3": "^11.3.0",
-    "express": "^4.19.2",
+    "express": "^5.3.0",
     "jsonwebtoken": "^9.0.2",
     "cookie-parser": "^1.4.6",
     "lodash": "4.17.15"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
+    "@types/express": "^5.0.6",
     "@types/node": "^22.5.0",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/cookie-parser": "^1.4.7",
