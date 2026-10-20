@@ -52,6 +52,31 @@ test('GET /products affiche la recherche sans interpréter le HTML fourni', asyn
   );
 });
 
+test('PUT /api/profile ne permet pas à un client de devenir administrateur', async () => {
+  const login = await request(app)
+    .post('/login')
+    .send({ email: 'alice@minishop.test', password: 'Password123' });
+
+  assert.equal(login.status, 200, 'Alice doit pouvoir se connecter');
+  const token = login.body.token;
+
+  await request(app)
+    .put('/api/profile')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ role: 'admin' });
+
+  const profile = await request(app)
+    .get('/api/profile')
+    .set('Authorization', `Bearer ${token}`);
+
+  assert.equal(profile.status, 200);
+  assert.equal(
+    profile.body.role,
+    'client',
+    'ERREUR : un utilisateur a pu modifier son rôle et devenir administrateur'
+  );
+});
+
 // --- À vous ---
 // Inspirez-vous de ce test pour écrire les vôtres : vous aurez besoin de
 // vous connecter d'abord dans la plupart des cas, par exemple :
