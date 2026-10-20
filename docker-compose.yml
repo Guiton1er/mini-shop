@@ -1,0 +1,21 @@
+services:
+  minishop:
+    build:
+      context: .
+    command: sh -c 'if [ ! -f /app/data/.seeded ]; then npm run seed && touch /app/data/.seeded; fi && npm start'
+    ports:
+      - "3000:3000"
+    volumes:
+      - minishop-data:/app/data
+    develop:
+      watch:
+        - action: rebuild
+          path: .
+          ignore:
+            - .git/
+            - node_modules/
+            - dist/
+            - data/
+
+volumes:
+  minishop-data:
