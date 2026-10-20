@@ -25,12 +25,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Gitleaks CLI
+      - name: Installer Gitleaks
         run: |
-          curl -sSL https://github.com | tar -xz
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_8.24.3_linux_x64.tar.gz" -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo install gitleaks /usr/local/bin/gitleaks
 
-      - name: Run Full Security Scan
-        run: ./gitleaks detect --source . --verbose
+      - name: Scanner tout l'historique Git
+        run: |
+          gitleaks git . \
+            --config=.gitleaks.toml \
+            --redact \
+            --verbose
 
   dependencies:
     name: Vérification des dépendences
