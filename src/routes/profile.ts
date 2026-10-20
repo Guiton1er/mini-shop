@@ -11,13 +11,20 @@ profileRouter.get('/api/profile', requireLogin, (req: AuthedRequest, res) => {
 });
 
 profileRouter.put('/api/profile', requireLogin, (req: AuthedRequest, res) => {
-  const current = db.prepare(`SELECT * FROM users WHERE id = ?`).get(req.user!.id) as any;
+  const current = db
+    .prepare(`SELECT id, name, phone, email FROM users WHERE id = ?`)
+    .get(req.user!.id) as { id: number; name: string; phone: string | null; email: string } | undefined;
 
-  const updated = Object.assign({}, current, req.body);
+  if (!current) {
+    res.status(404).json({ error: 'Utilisateur introuvable' });
+    return;
+  }
+
+  const { name = current.name, phone = current.phone, email = current.email } = req.body || {};
 
   db.prepare(
-    `UPDATE users SET name = ?, phone = ?, email = ?, role = ?, password_hash = ? WHERE id = ?`
-  ).run(updated.name, updated.phone, updated.email, updated.role, updated.password_hash, current.id);
+    `UPDATE users SET name = ?, phone = ?, email = ? WHERE id = ?`
+  ).run(name, phone, email, current.id);
 
-  res.json(updated);
+  res.json({ ...current, name, phone, email });
 });
