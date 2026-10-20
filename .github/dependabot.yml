@@ -4,9 +4,9 @@ updates:
   - package-ecosystem: "npm"
     directory: "/" # Emplacement du package.json (racine du projet)
     schedule:
-      interval: "weekly" # Fréquence de vérification (daily, weekly, monthly)
-      day: "monday"      # Jour de la vérification si hebdomadaire
-      time: "09:00"      # Heure de la vérification (UTC)
+      interval: "daily" # Fréquence de vérification (daily, weekly, monthly)
+      # day: "monday"      # Jour de la vérification si hebdomadaire
+      time: "14:24"      # Heure de la vérification (UTC)
       timezone: "Europe/Paris"
     open-pull-requests-limit: 5 # Nombre maximum de PR ouvertes en même temps
     
