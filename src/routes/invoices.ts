@@ -17,7 +17,9 @@ invoicesRouter.get('/api/invoices', requireLogin, (req: AuthedRequest, res) => {
 });
 
 invoicesRouter.get('/api/invoices/:id', requireLogin, (req: AuthedRequest, res) => {
-  const invoice = db.prepare(`SELECT * FROM invoices WHERE id = ?`).get(req.params.id);
+  const invoice = db
+    .prepare(`SELECT id, order_id, user_id, amount, file_name, created_at FROM invoices WHERE id = ? AND user_id = ?`)
+    .get(req.params.id, req.user!.id);
   if (!invoice) {
     res.status(404).json({ error: 'Facture introuvable' });
     return;

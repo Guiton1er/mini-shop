@@ -77,6 +77,35 @@ test('PUT /api/profile ne permet pas à un client de devenir administrateur', as
   );
 });
 
+test('GET /api/invoices/:id refuse la facture d’un autre utilisateur', async () => {
+  const aliceLogin = await request(app)
+    .post('/login')
+    .send({ email: 'alice@minishop.test', password: 'Password123' });
+  const bobLogin = await request(app)
+    .post('/login')
+    .send({ email: 'bob@minishop.test', password: 'Soleil2024' });
+
+  assert.equal(aliceLogin.status, 200, 'Alice doit pouvoir se connecter');
+  assert.equal(bobLogin.status, 200, 'Bob doit pouvoir se connecter');
+
+  const bobInvoices = await request(app)
+    .get('/api/invoices')
+    .set('Authorization', `Bearer ${bobLogin.body.token}`);
+
+  assert.equal(bobInvoices.status, 200);
+  assert.ok(bobInvoices.body.length > 0, 'Bob doit posséder au moins une facture');
+
+  const res = await request(app)
+    .get(`/api/invoices/${bobInvoices.body[0].id}`)
+    .set('Authorization', `Bearer ${aliceLogin.body.token}`);
+
+  assert.equal(
+    res.status,
+    404,
+    'ERREUR : Alice a pu accéder à la facture de Bob'
+  );
+});
+
 // --- À vous ---
 // Inspirez-vous de ce test pour écrire les vôtres : vous aurez besoin de
 // vous connecter d'abord dans la plupart des cas, par exemple :
