@@ -30,7 +30,17 @@ invoicesRouter.get('/api/invoices/:id', requireLogin, (req: AuthedRequest, res) 
 invoicesRouter.get('/download', requireLogin, (req, res) => {
   const name = String(req.query.name || '');
 
-  const fullPath = path.join(FILES_DIR, name);
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(name)) {
+    res.status(404).send('Fichier introuvable');
+    return;
+  }
+
+  const fullPath = path.resolve(FILES_DIR, name);
+  const relativePath = path.relative(FILES_DIR, fullPath);
+  if (relativePath.startsWith(`..${path.sep}`) || relativePath === '..' || path.isAbsolute(relativePath)) {
+    res.status(404).send('Fichier introuvable');
+    return;
+  }
 
   fs.readFile(fullPath, 'utf-8', (err, data) => {
     if (err) {
