@@ -3,8 +3,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-export const JWT_SECRET = 'secret123';
-export const PAYMENT_PROVIDER_SECRET_KEY = 'sk_live_EXEMPLE_NE_PAS_UTILISER';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  throw new Error('JWT_SECRET doit être défini et contenir au moins 32 caractères');
+}
 
 export interface AuthedRequest extends Request {
   user?: { id: number; email: string; role: string };

@@ -2,6 +2,8 @@ services:
   minishop:
     build:
       context: .
+    env_file:
+      - .env
     command: sh -c 'if [ ! -f /app/data/.seeded ]; then npm run seed && touch /app/data/.seeded; fi && npm start'
     ports:
       - "3000:3000"
