@@ -278,6 +278,32 @@ test('POST /login bloque après cinq échecs pour la même adresse e-mail', asyn
   );
 });
 
+test('POST /api/payment/webhook rejette une requête sans signature', async () => {
+  const order = db.prepare('SELECT id, status FROM orders ORDER BY id LIMIT 1').get() as
+    | { id: number; status: string }
+    | undefined;
+  assert.ok(order, 'une commande de test doit exister');
+
+  const res = await request(app)
+    .post('/api/payment/webhook')
+    .send({ orderId: order.id, status: 'refunded' });
+
+  assert.equal(
+    res.status,
+    401,
+    'ERREUR : le webhook a accepté une requête sans signature du prestataire'
+  );
+
+  const unchangedOrder = db.prepare('SELECT status FROM orders WHERE id = ?').get(order.id) as
+    | { status: string }
+    | undefined;
+  assert.equal(
+    unchangedOrder?.status,
+    order.status,
+    'ERREUR : une requête non signée a modifié le statut de la commande'
+  );
+});
+
 // --- À vous ---
 // Inspirez-vous de ce test pour écrire les vôtres : vous aurez besoin de
 // vous connecter d'abord dans la plupart des cas, par exemple :
