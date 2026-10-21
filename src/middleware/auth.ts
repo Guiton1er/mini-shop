@@ -14,7 +14,11 @@ export interface AuthedRequest extends Request {
 }
 
 export function createToken(user: { id: number; email: string; role: string }): string {
-  return jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET);
+  return jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    JWT_SECRET,
+    { expiresIn: '15m', algorithm: 'HS256' }
+  );
 }
 
 export function requireLogin(req: AuthedRequest, res: Response, next: NextFunction): void {
@@ -26,7 +30,9 @@ export function requireLogin(req: AuthedRequest, res: Response, next: NextFuncti
     return;
   }
   try {
-    req.user = jwt.verify(token, JWT_SECRET) as AuthedRequest['user'];
+    req.user = jwt.verify(token, JWT_SECRET, {
+      algorithms: ['HS256']
+    }) as AuthedRequest['user'];
     next();
   } catch {
     res.status(401).json({ error: 'Jeton invalide' });
