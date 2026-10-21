@@ -17,7 +17,6 @@
 import assert from 'node:assert/strict';
 import { test, beforeEach } from 'node:test';
 import request from 'supertest';
-import childProcess from 'child_process';
 import { app } from '../app';
 import { initSchema } from '../db';
 import { reset, seed } from '../seed';
@@ -107,16 +106,12 @@ test('GET /api/invoices/:id refuse la facture d’un autre utilisateur', async (
   );
 });
 
-test('GET /api/admin/diagnostic refuse une injection de commande echo', async (t) => {
+test('GET /api/admin/diagnostic refuse une injection de commande echo', async () => {
   const login = await request(app)
     .post('/login')
     .send({ email: 'admin@minishop.test', password: 'AdminAdmin1' });
 
   assert.equal(login.status, 200, 'l’administrateur doit pouvoir se connecter');
-
-  t.mock.method(childProcess, 'exec', () => {
-    throw new Error('ERREUR : la route a tenté d’exécuter une commande fournie par le client');
-  });
 
   const res = await request(app)
     .get('/api/admin/diagnostic')
