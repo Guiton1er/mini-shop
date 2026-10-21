@@ -10,6 +10,7 @@ import { db, initSchema } from './db';
 export function reset(): void {
   db.exec(`
     DROP TABLE IF EXISTS logs;
+    DROP TABLE IF EXISTS login_attempts;
     DROP TABLE IF EXISTS invoices;
     DROP TABLE IF EXISTS order_items;
     DROP TABLE IF EXISTS orders;

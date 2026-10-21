@@ -251,6 +251,33 @@ test('GET /api/profile rejette les jetons signés avec un algorithme non autoris
   );
 });
 
+test('POST /login bloque après cinq échecs pour la même adresse e-mail', async () => {
+  const email = 'login-limit-test@minishop.test';
+  const registration = await request(app)
+    .post('/register')
+    .send({ email, name: 'Login Limit Test', password: 'CorrectPassword123!' });
+
+  assert.equal(registration.status, 201, 'le compte de test doit être créé');
+
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    const res = await request(app)
+      .post('/login')
+      .send({ email, password: `WrongPassword${attempt}!` });
+
+    assert.equal(res.status, 401, `la tentative échouée ${attempt} doit être refusée`);
+  }
+
+  const blocked = await request(app)
+    .post('/login')
+    .send({ email, password: 'WrongPassword6!' });
+
+  assert.equal(
+    blocked.status,
+    429,
+    'ERREUR : une sixième tentative est possible après cinq échecs pour cet e-mail'
+  );
+});
+
 // --- À vous ---
 // Inspirez-vous de ce test pour écrire les vôtres : vous aurez besoin de
 // vous connecter d'abord dans la plupart des cas, par exemple :
