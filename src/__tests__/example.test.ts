@@ -106,6 +106,25 @@ test('GET /api/invoices/:id refuse la facture d’un autre utilisateur', async (
   );
 });
 
+test('GET /api/admin/diagnostic refuse une injection de commande echo', async () => {
+  const login = await request(app)
+    .post('/login')
+    .send({ email: 'admin@minishop.test', password: 'AdminAdmin1' });
+
+  assert.equal(login.status, 200, 'l’administrateur doit pouvoir se connecter');
+
+  const res = await request(app)
+    .get('/api/admin/diagnostic')
+    .set('Authorization', `Bearer ${login.body.token}`)
+    .query({ host: '127.0.0.1; echo INJECTION_TEST' });
+
+  assert.equal(
+    res.status,
+    400,
+    'ERREUR : une commande echo peut être injectée dans le ping'
+  );
+});
+
 // --- À vous ---
 // Inspirez-vous de ce test pour écrire les vôtres : vous aurez besoin de
 // vous connecter d'abord dans la plupart des cas, par exemple :
