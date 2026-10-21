@@ -18,6 +18,7 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
 import { test, beforeEach } from 'node:test';
+import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { app } from '../app';
 import { db, initSchema } from '../db';
@@ -206,6 +207,48 @@ test('POST /register stocke les mots de passe avec bcrypt', async () => {
     'ERREUR : le mot de passe n’est pas stocké avec bcrypt'
   );
   assert.notEqual(user.password_hash, password, 'ERREUR : le mot de passe est stocké en clair');
+});
+
+test('POST /login émet un jeton qui expire dans les 15 minutes', async () => {
+  const res = await request(app)
+    .post('/login')
+    .send({ email: 'alice@minishop.test', password: 'Password123' });
+
+  assert.equal(res.status, 200, 'Alice doit pouvoir se connecter');
+
+  const decoded = jwt.decode(res.body.token);
+  assert.ok(decoded && typeof decoded === 'object', 'ERREUR : jeton JWT illisible');
+  assert.ok(
+    typeof decoded.iat === 'number' && typeof decoded.exp === 'number',
+    'ERREUR : le jeton JWT ne contient pas de date d’expiration'
+  );
+
+  const lifetime = decoded.exp - decoded.iat;
+  assert.ok(
+    lifetime > 0 && lifetime <= 15 * 60,
+    `ERREUR : durée de vie du jeton trop longue (${lifetime} secondes)`
+  );
+});
+
+test('GET /api/profile rejette les jetons signés avec un algorithme non autorisé', async () => {
+  const secret = process.env.JWT_SECRET;
+  assert.ok(secret, 'JWT_SECRET doit être configuré pour ce test');
+
+  const token = jwt.sign(
+    { id: 1, email: 'alice@minishop.test', role: 'client' },
+    secret,
+    { algorithm: 'HS384', expiresIn: '5m' }
+  );
+
+  const res = await request(app)
+    .get('/api/profile')
+    .set('Authorization', `Bearer ${token}`);
+
+  assert.equal(
+    res.status,
+    401,
+    'ERREUR : un jeton signé avec HS384 a été accepté'
+  );
 });
 
 // --- À vous ---
