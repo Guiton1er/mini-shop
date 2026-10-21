@@ -20,7 +20,7 @@ import path from 'path';
 import { test, beforeEach } from 'node:test';
 import request from 'supertest';
 import { app } from '../app';
-import { initSchema } from '../db';
+import { db, initSchema } from '../db';
 import { reset, seed } from '../seed';
 
 // Remet la base dans un état connu avant chaque test, pour que l'ordre
@@ -162,6 +162,25 @@ test('GET /download refuse les fichiers hors du dossier des factures', async () 
       fs.unlinkSync(envPath);
     }
   }
+});
+
+test('POST /register ne journalise pas le mot de passe', async () => {
+  const password = 'SecretPasswordForLogTest123!';
+  const res = await request(app)
+    .post('/register')
+    .send({
+      email: 'log-test@minishop.test',
+      name: 'Log Test',
+      password
+    });
+
+  assert.equal(res.status, 201, 'l’inscription doit réussir');
+
+  const logs = db.prepare('SELECT message FROM logs').all() as { message: string }[];
+  assert.ok(
+    !logs.some((log) => log.message.includes(password)),
+    'ERREUR : le mot de passe est présent dans les logs d’inscription'
+  );
 });
 
 // --- À vous ---
