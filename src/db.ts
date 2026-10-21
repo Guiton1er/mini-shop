@@ -59,5 +59,11 @@ export function initSchema(): void {
       created_at  TEXT NOT NULL DEFAULT (datetime('now')),
       message     TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS login_attempts (
+      email             TEXT PRIMARY KEY,
+      failed_attempts   INTEGER NOT NULL,
+      window_started_at INTEGER NOT NULL
+    );
   `);
 }
