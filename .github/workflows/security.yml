@@ -9,6 +9,7 @@ jobs:
   tests:
     name: Suite de tests de sécurité
     runs-on: ubuntu-latest
+    environment: secrets
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,6 +17,8 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npm test
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
   secrets:
     name: gitleaks
