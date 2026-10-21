@@ -33,7 +33,7 @@ authRouter.post('/register', (req, res) => {
     .prepare(`INSERT INTO users (email, name, phone, password_hash, role) VALUES (?, ?, ?, ?, 'client')`)
     .run(email, name, phone || null, hash);
 
-  logEvent(`Inscription : ${email} / mot de passe fourni = "${password}"`);
+  logEvent(`Inscription : ${email}`);
 
   const token = createToken({ id: Number(info.lastInsertRowid), email, role: 'client' });
   res.status(201).json({ token, user: { id: info.lastInsertRowid, email, name, role: 'client' } });
