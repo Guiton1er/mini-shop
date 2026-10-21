@@ -2,14 +2,10 @@
 //
 // Remet la base à zéro et la peuple avec des données de démonstration.
 
-import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
 import { db, initSchema } from './db';
-
-function md5(input: string): string {
-  return crypto.createHash('md5').update(input).digest('hex');
-}
 
 export function reset(): void {
   db.exec(`
@@ -29,9 +25,9 @@ export function seed(): void {
   const insertUser = db.prepare(
     `INSERT INTO users (email, name, phone, password_hash, role) VALUES (?, ?, ?, ?, ?)`
   );
-  const alice = insertUser.run('alice@minishop.test', 'Alice Martin', '0601020304', md5('Password123'), 'client');
-  const bob   = insertUser.run('bob@minishop.test',   'Bob Durand',   '0605060708', md5('Soleil2024'),  'client');
-  insertUser.run('admin@minishop.test', 'Admin MiniShop', '0600000000', md5('AdminAdmin1'), 'admin');
+  const alice = insertUser.run('alice@minishop.test', 'Alice Martin', '0601020304', bcrypt.hashSync('Password123', 12), 'client');
+  const bob   = insertUser.run('bob@minishop.test',   'Bob Durand',   '0605060708', bcrypt.hashSync('Soleil2024', 12), 'client');
+  insertUser.run('admin@minishop.test', 'Admin MiniShop', '0600000000', bcrypt.hashSync('AdminAdmin1', 12), 'admin');
 
   const insertProduct = db.prepare(`INSERT INTO products (name, description, price, stock) VALUES (?, ?, ?, ?)`);
   const products = [

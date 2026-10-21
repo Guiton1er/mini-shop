@@ -183,6 +183,31 @@ test('POST /register ne journalise pas le mot de passe', async () => {
   );
 });
 
+test('POST /register stocke les mots de passe avec bcrypt', async () => {
+  const password = 'BcryptHashTestPassword123!';
+  const res = await request(app)
+    .post('/register')
+    .send({
+      email: 'bcrypt-test@minishop.test',
+      name: 'Bcrypt Test',
+      password
+    });
+
+  assert.equal(res.status, 201, 'l’inscription doit réussir');
+
+  const user = db
+    .prepare('SELECT password_hash FROM users WHERE email = ?')
+    .get('bcrypt-test@minishop.test') as { password_hash: string } | undefined;
+
+  assert.ok(user, 'ERREUR : le compte inscrit est introuvable en base');
+  assert.match(
+    user.password_hash,
+    /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/,
+    'ERREUR : le mot de passe n’est pas stocké avec bcrypt'
+  );
+  assert.notEqual(user.password_hash, password, 'ERREUR : le mot de passe est stocké en clair');
+});
+
 // --- À vous ---
 // Inspirez-vous de ce test pour écrire les vôtres : vous aurez besoin de
 // vous connecter d'abord dans la plupart des cas, par exemple :
