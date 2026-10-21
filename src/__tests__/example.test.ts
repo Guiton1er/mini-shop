@@ -17,6 +17,7 @@
 import assert from 'node:assert/strict';
 import { test, beforeEach } from 'node:test';
 import request from 'supertest';
+import childProcess from 'child_process';
 import { app } from '../app';
 import { initSchema } from '../db';
 import { reset, seed } from '../seed';
@@ -103,6 +104,29 @@ test('GET /api/invoices/:id refuse la facture d’un autre utilisateur', async (
     res.status,
     404,
     'ERREUR : Alice a pu accéder à la facture de Bob'
+  );
+});
+
+test('GET /api/admin/diagnostic refuse une injection de commande echo', async (t) => {
+  const login = await request(app)
+    .post('/login')
+    .send({ email: 'admin@minishop.test', password: 'AdminAdmin1' });
+
+  assert.equal(login.status, 200, 'l’administrateur doit pouvoir se connecter');
+
+  t.mock.method(childProcess, 'exec', () => {
+    throw new Error('ERREUR : la route a tenté d’exécuter une commande fournie par le client');
+  });
+
+  const res = await request(app)
+    .get('/api/admin/diagnostic')
+    .set('Authorization', `Bearer ${login.body.token}`)
+    .query({ host: '127.0.0.1; echo INJECTION_TEST' });
+
+  assert.equal(
+    res.status,
+    400,
+    'ERREUR : une commande echo peut être injectée dans le ping'
   );
 });
 
