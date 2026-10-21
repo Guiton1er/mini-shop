@@ -15,6 +15,8 @@
 // Exécution : npm test (compile puis lance node --test sur dist/__tests__/).
 
 import assert from 'node:assert/strict';
+import fs from 'fs';
+import path from 'path';
 import { test, beforeEach } from 'node:test';
 import request from 'supertest';
 import { app } from '../app';
@@ -123,6 +125,43 @@ test('GET /api/admin/diagnostic refuse une injection de commande echo', async ()
     400,
     'ERREUR : une commande echo peut être injectée dans le ping'
   );
+});
+
+test('GET /download refuse les fichiers hors du dossier des factures', async () => {
+  const login = await request(app)
+    .post('/login')
+    .send({ email: 'alice@minishop.test', password: 'Password123' });
+
+  assert.equal(login.status, 200, 'Alice doit pouvoir se connecter');
+
+  const envPath = path.join(process.cwd(), '.env');
+  const marker = 'ENV_FILE_ACCESS_TEST_MARKER';
+  const createdEnvFixture = !fs.existsSync(envPath);
+  const targetFileName = createdEnvFixture ? '.env' : '.env.example';
+
+  if (createdEnvFixture) {
+    fs.writeFileSync(envPath, marker);
+  }
+
+  try {
+    const res = await request(app)
+      .get('/download')
+      .set('Authorization', `Bearer ${login.body.token}`)
+      .query({ name: `../${targetFileName}` });
+
+    assert.ok(
+      res.status === 403 || res.status === 404,
+      `ERREUR : le fichier .env est accessible via /download (HTTP ${res.status})`
+    );
+    assert.ok(
+      !res.text.includes(marker),
+      'ERREUR : le contenu du fichier .env a été renvoyé'
+    );
+  } finally {
+    if (createdEnvFixture) {
+      fs.unlinkSync(envPath);
+    }
+  }
 });
 
 // --- À vous ---
